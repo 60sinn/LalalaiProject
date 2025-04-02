@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load form_filters %}
+{% block title %}Регистрация — Lalalai{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-md">
+    <h2 class="text-2xl font-bold text-purple-600 mb-6 text-center">Регистрация</h2>
+    
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+        <div>
+            {{ field.label_tag }}
+            {{ field|add_class:"w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400" }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2 rounded-lg transition">Зарегистрироваться</button>
+    </form>
+
+    <p class="text-sm text-center mt-4 text-gray-600">
+        Уже есть аккаунт? <a href="{% url 'login' %}" class="text-purple-600 hover:underline">Войдите</a>
+    </p>
+</div>
+{% endblock %}
