@@ -37,6 +37,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    #наши приложения
+    'core',
+    'users',
+    'anime',
+    'shorts',
+    'comments',
+    'favorites',
+    'likes',
+    'ratings',
 ]
 
 MIDDLEWARE = [
