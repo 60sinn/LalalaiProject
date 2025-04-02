@@ -1,0 +1,25 @@
+{
+  "name": "lalalaiproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/60sinn/LalalaiProject.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/60sinn/LalalaiProject/issues"
+  },
+  "homepage": "https://github.com/60sinn/LalalaiProject#readme",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss-cli": "^0.1.2"
+  }
+}
