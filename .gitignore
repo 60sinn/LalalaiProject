@@ -20,3 +20,10 @@ __pycache__/
 # macOS/Windows мусор
 .DS_Store
 Thumbs.db
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Tailwind output
+static/css/output.css
