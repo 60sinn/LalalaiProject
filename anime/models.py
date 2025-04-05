@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.text import slugify
 
 #жанр
 class Genre(models.Model):
@@ -22,6 +23,14 @@ class Anime(models.Model):
     genres = models.ManyToManyField(Genre, related_name='animes')
     studio = models.ForeignKey(Studio, on_delete=models.SET_NULL, null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
+    poster_url = models.URLField(max_length=200, blank=True, null=True)
+    url_title = models.SlugField(unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        # тут гененрируется часть юрл если url_title не задан
+        if not self.url_title:
+            self.url_title = slugify(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -32,6 +41,13 @@ class Season(models.Model):
     title = models.CharField(max_length=200)
     season_number = models.PositiveIntegerField()  # Номер сезона (1, 2, 3 и т.д.)
     release_date = models.DateField(null=True, blank=True)
+    url_title = models.SlugField(unique=True, blank=True)
+    poster_url = models.URLField(max_length=200, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.url_title:
+            self.url_title = slugify(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.title} ({self.anime.title} - Season {self.season_number})"
@@ -43,7 +59,13 @@ class Episode(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     release_date = models.DateField(null=True, blank=True)
+    url_title = models.SlugField(unique=True, blank=True)
     url = models.URLField(max_length=200)
+
+    def save(self, *args, **kwargs):
+        if not self.url_title:
+            self.url_title = slugify(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Episode {self.episode_number} - {self.title}"

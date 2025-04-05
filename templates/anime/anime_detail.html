@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ anime.title }} — Lalalai{% endblock %}
+
+{% block content %}
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-4 text-purple-700">{{ anime.title }}</h1>
+    <img src="{{ anime.poster_url }}" alt="{{ anime.title }}" class="rounded-xl mx-auto mb-6 max-h-96 object-cover">
+    <p class="text-lg text-gray-700 mb-8 text-center">{{ anime.description }}</p>
+
+    <h2 class="text-2xl font-semibold mb-4">Сезоны</h2>
+    <ul class="space-y-4">
+      {% for season in seasons %}
+        <li>
+          <a href="{% url 'season_detail' anime.url_title season.url_title %}"
+             class="flex items-center bg-gradient-to-r from-pink-50 via-purple-50 to-indigo-100 rounded-2xl shadow p-4 gap-4 hover:shadow-lg transition">
+
+            <!-- Постер сезона -->
+            <div class="w-20 h-20 flex-shrink-0">
+              <img src="{{ season.poster_url }}" alt="{{ season.title }}"
+                   class="w-full h-full object-cover rounded-full border-2 border-purple-300 shadow-sm">
+            </div>
+
+            <!-- Текст -->
+            <div>
+              <h3 class="text-xl font-semibold text-pink-700 mb-1">
+                {{ season.title }}
+              </h3>
+              <p class="text-sm text-gray-600">Сезон №{{ season.season_number }}</p>
+            </div>
+
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}

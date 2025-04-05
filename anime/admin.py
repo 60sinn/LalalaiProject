@@ -11,10 +11,13 @@ class StudioAdmin(admin.ModelAdmin):
 
 @admin.register(Anime)
 class AnimeAdmin(admin.ModelAdmin):
-    list_display = ('title', 'release_date', 'studio', 'poster_url')
+    list_display = ('title', 'release_date', 'studio', 'get_poster_url')
     search_fields = ('title',)
     list_filter = ('studio', 'release_date')
 
+    def get_poster_url(self, obj):
+        return obj.poster_url  # возвращаем ссылку на постер
+    get_poster_url.short_description = 'Poster URL'
 
 @admin.register(Season)
 class SeasonAdmin(admin.ModelAdmin):
