@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from cloudinary.models import CloudinaryField
 
 #жанр
 class Genre(models.Model):
@@ -23,7 +24,7 @@ class Anime(models.Model):
     genres = models.ManyToManyField(Genre, related_name='animes')
     studio = models.ForeignKey(Studio, on_delete=models.SET_NULL, null=True, blank=True)
     release_date = models.DateField(null=True, blank=True)
-    poster_url = models.URLField(max_length=200, blank=True, null=True)
+    poster = CloudinaryField('image', blank=True, null=True)
     url_title = models.SlugField(unique=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -42,7 +43,7 @@ class Season(models.Model):
     season_number = models.PositiveIntegerField()  # Номер сезона (1, 2, 3 и т.д.)
     release_date = models.DateField(null=True, blank=True)
     url_title = models.SlugField(unique=True, blank=True)
-    poster_url = models.URLField(max_length=200, blank=True, null=True)
+    poster = CloudinaryField('image', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.url_title:
@@ -60,7 +61,7 @@ class Episode(models.Model):
     description = models.TextField(blank=True)
     release_date = models.DateField(null=True, blank=True)
     url_title = models.SlugField(unique=True, blank=True)
-    url = models.URLField(max_length=200)
+    video = CloudinaryField('video', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.url_title:

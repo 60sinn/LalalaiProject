@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'cloudinary',
+    'cloudinary_storage',
 
     #наши приложения
     'core',
@@ -137,3 +139,21 @@ AUTH_USER_MODEL = 'users.CustomUser'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dkycpes1u',
+    'API_KEY': '358345675739425',
+    'API_SECRET': 'vWs8u4qloYMGZEE-bLu0gMwPskU',
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+import cloudinary
+
+cloudinary.config( 
+  cloud_name = 'dkycpes1u', 
+  api_key = '358345675739425', 
+  api_secret = 'vWs8u4qloYMGZEE-bLu0gMwPskU'
+)
+
+MAX_AVATAR_SIZE_KB = 128

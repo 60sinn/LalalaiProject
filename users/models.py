@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from cloudinary.models import CloudinaryField
+from .validators import validate_avatar_file_size, validate_avatar_file_extension
 
 class CustomUser(AbstractUser):
     class Roles(models.TextChoices):
@@ -13,6 +15,8 @@ class CustomUser(AbstractUser):
         choices=Roles.choices,
         default=Roles.USER
     )
+
+    avatar = CloudinaryField('avatar', blank=True, null=True, validators=[validate_avatar_file_size, validate_avatar_file_extension])
 
     def is_moderator(self):
         return self.role == self.Roles.MODERATOR
