@@ -11,7 +11,7 @@ class StudioAdmin(admin.ModelAdmin):
 
 @admin.register(Anime)
 class AnimeAdmin(admin.ModelAdmin):
-    list_display = ('title', 'release_date', 'studio')
+    list_display = ('title', 'release_date', 'studio', 'poster_url')
     search_fields = ('title',)
     list_filter = ('studio', 'release_date')
 
