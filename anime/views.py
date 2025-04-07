@@ -22,3 +22,15 @@ def episode_detail(request, anime_url_title, season_url_title, episode_url_title
     season = get_object_or_404(Season, anime=anime, url_title=season_url_title)
     episode = get_object_or_404(Episode, season=season, url_title=episode_url_title)  # Получаем эпизод по episode_url_title
     return render(request, 'anime/episode_detail.html', {'episode': episode})
+
+from django.shortcuts import get_object_or_404, render
+from .models import Anime, Opening
+
+def opening_view(request, anime_url_title):
+    anime = get_object_or_404(Anime, url_title=anime_url_title)
+    opening = anime.openings.first()  # Если пока один опенинг
+
+    return render(request, 'anime/opening_detail.html', {
+        'anime': anime,
+        'opening': opening
+    })

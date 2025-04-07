@@ -70,3 +70,17 @@ class Episode(models.Model):
 
     def __str__(self):
         return f"Episode {self.episode_number} - {self.title}"
+
+class Opening(models.Model):
+    anime = models.ForeignKey('Anime', on_delete=models.CASCADE, related_name='openings')
+    title = models.CharField(max_length=255)
+    url_title = models.SlugField(unique=True, blank=True)
+    video = CloudinaryField('video', resource_type='video', blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.url_title:
+            self.url_title = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.anime.title} — {self.title}"
