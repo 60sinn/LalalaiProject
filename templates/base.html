@@ -1,14 +1,15 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Lalalai{% endblock %}</title>
-    {% load static %}
     <link href="{% static 'css/output.css' %}" rel="stylesheet">
 </head>
-<body class="bg-pink-100 min-h-screen text-gray-800 flex flex-col">
+<body class="bg-pink-50 min-h-screen text-gray-800">
 
-    <header class="bg-pink-200 shadow-md sticky top-0 z-50">
+    <!-- 🔝 Навигация -->
+    <header class="bg-pink-100 shadow-md sticky top-0 z-50">
         <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
             <a href="{% url 'home' %}" class="text-2xl font-bold text-pink-600 hover:text-pink-700 transition">
                 🌸 Lalalai
@@ -33,12 +34,15 @@
         </nav>
     </header>
 
-    <main class="container mx-auto px-4 py-8 flex-grow">
+    <!-- 🌸 Контент -->
+    <main class="container mx-auto px-4 py-8">
         {% block content %}{% endblock %}
     </main>
 
-    <footer class="text-center text-sm text-gray-500 bg-pink-200 py-6 border-t border-purple-300 mt-auto">
+    <!-- ⚓ Футер -->
+    <footer class="text-center text-sm text-gray-500 py-6 mt-8">
         © 2025 Lalalai. Сделано с ❤️ для всех отаку.
     </footer>
+
 </body>
 </html>
