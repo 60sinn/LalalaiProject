@@ -25,7 +25,11 @@ SECRET_KEY = "django-insecure-(0+=029gbc)%-)98zjclekxf9krx=-o_^lv$%62u0@)%&=4x%u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".github.dev",
+]
 
 
 # Application definition
@@ -157,3 +161,9 @@ cloudinary.config(
 )
 
 MAX_AVATAR_SIZE_KB = 128
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.github.dev",
+    "https://localhost:8000",
+    "https://127.0.0.1:8000",
+]

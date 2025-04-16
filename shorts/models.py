@@ -18,7 +18,7 @@ def generate_unique_url_id():
 class Short(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    video = CloudinaryField('video')
+    video = CloudinaryField(resource_type='video')
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shorts')
     anime = models.ForeignKey(Anime, on_delete=models.SET_NULL, null=True, blank=True, related_name='shorts')
     created_at = models.DateTimeField(auto_now_add=True)

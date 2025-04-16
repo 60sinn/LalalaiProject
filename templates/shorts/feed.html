@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Shorts container with centered content -->
+<section class="flex justify-center items-center min-h-screen">
+  <div id="shortsWrapper" class="max-w-[480px] h-screen overflow-hidden">
+    {% for short in shorts %}
+    <div 
+      class="short-video h-screen w-full flex items-center justify-center"
+      data-id="{{ short.url_id }}"
+    >
+      <div class="relative h-full w-full rounded-xl overflow-hidden">
+        <!-- Video element without controls attribute -->
+        <video 
+          id="video-{{ short.url_id }}"
+          class="h-full w-full object-cover"
+          src="{{ short.video.url }}"
+          autoplay
+          loop
+          playsinline
+          preload="auto"
+        ></video>
+
+        <!-- Volume button - more visible and positioned in the corner of the SHORT -->
+        <button 
+          id="volume-btn-{{ short.url_id }}"
+          class="absolute top-4 right-4 z-30 bg-black/60 hover:bg-black/80 p-3 rounded-full transition-all duration-200"
+          onclick="toggleMute('video-{{ short.url_id }}'); event.stopPropagation();"
+        >
+          <!-- Using the exact icon style the user provided -->
+          <svg id="volume-icon-{{ short.url_id }}" width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <path d="M3,9H7L12,4V20L7,15H3V9Z" />
+            <path d="M16.5,12C16.5,10.23 15.48,8.71 14,7.97V16.02C15.48,15.29 16.5,13.77 16.5,12Z" />
+            <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23Z" />
+          </svg>
+        </button>
+
+        <!-- Volume slider (appears on hover) -->
+        <div 
+          id="volume-slider-container-{{ short.url_id }}"
+          class="absolute top-4 right-16 z-30 hidden"
+        >
+          <div class="bg-black/60 rounded-full px-3 py-2">
+            <input 
+              type="range" 
+              id="volume-slider-{{ short.url_id }}" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.5"
+              class="w-24 accent-pink-500"
+              oninput="changeVolume('video-{{ short.url_id }}', this.value)"
+              onclick="event.stopPropagation()"
+            >
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-700/50 z-20">
+          <div 
+            id="progress-{{ short.url_id }}" 
+            class="h-full w-0 bg-gradient-to-r from-pink-500 to-purple-500"
+          ></div>
+        </div>
+
+        <!-- Video info overlay -->
+        <div class="absolute bottom-0 left-0 w-full p-4 
+                    bg-gradient-to-t from-black/90 to-transparent 
+                    text-gray-200 drop-shadow-md z-10">
+          <div class="flex items-center gap-2 mb-3">
+            {% if short.author.avatar.url %}
+              <img 
+                src="{{ short.author.avatar.url }}"
+                alt="Avatar {{ short.author.username }}"
+                class="w-8 h-8 rounded-full object-cover border border-white shadow-sm"
+              >
+            {% else %}
+              <img 
+                src="https://ui-avatars.com/api/?name={{ short.author.username }}&background=111&color=fff&size=64"
+                alt="Avatar placeholder"
+                class="w-8 h-8 rounded-full border border-white shadow-sm"
+              >
+            {% endif %}
+            <span class="text-sm font-semibold">
+              {{ short.author.username }}
+            </span>
+          </div>
+          <div class="font-bold text-base mb-1 leading-tight">
+            {{ short.title }}
+          </div>
+          <div class="text-sm leading-tight">
+            {{ short.description }}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<script>
+(function() {
+  const shortBlocks = document.querySelectorAll('.short-video');
+  let currentIndex = 0;
+  let isScrolling = false;
+
+  // Function to toggle mute/unmute
+  window.toggleMute = function(videoId) {
+    const video = document.getElementById(videoId);
+    video.muted = !video.muted;
+    
+    // Update icon based on mute state
+    updateVolumeIcon(videoId, video.muted ? 0 : video.volume);
+  };
+
+  // Function to update volume icon based on state
+  function updateVolumeIcon(videoId, volumeLevel) {
+    const iconId = videoId.replace('video-', 'volume-icon-');
+    const icon = document.getElementById(iconId);
+    
+    if (volumeLevel === 0) {
+      // Muted icon (speaker with X)
+      icon.innerHTML = `
+        <path d="M3,9H7L12,4V20L7,15H3V9Z" />
+        <path d="M14,9.8L17.2,13L14,16.2V9.8Z" />
+        <path d="M18.6,16.6L15.4,13.4L18.6,10.2L20,11.6L16.8,14.8L20,18L18.6,16.6Z" />
+        <path d="M18.6,10.2L15.4,13.4L18.6,16.6L20,18L16.8,14.8L20,11.6L18.6,10.2Z" />
+      `;
+    } else {
+      // Unmuted icon (speaker with waves)
+      icon.innerHTML = `
+        <path d="M3,9H7L12,4V20L7,15H3V9Z" />
+        <path d="M16.5,12C16.5,10.23 15.48,8.71 14,7.97V16.02C15.48,15.29 16.5,13.77 16.5,12Z" />
+        <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23Z" />
+      `;
+    }
+  }
+
+  // Function to change volume
+  window.changeVolume = function(videoId, value) {
+    const video = document.getElementById(videoId);
+    video.volume = value;
+    video.muted = (value === 0);
+    
+    // Update icon based on volume level
+    updateVolumeIcon(videoId, value);
+  };
+
+  // Toggle volume slider visibility
+  function setupVolumeControls() {
+    shortBlocks.forEach(block => {
+      const videoId = block.getAttribute('data-id');
+      const volumeBtn = document.getElementById(`volume-btn-${videoId}`);
+      const sliderContainer = document.getElementById(`volume-slider-container-${videoId}`);
+      
+      // Show slider on hover
+      volumeBtn.addEventListener('mouseenter', () => {
+        sliderContainer.classList.remove('hidden');
+      });
+      
+      // Hide slider when mouse leaves the button and slider area
+      const hideSlider = () => {
+        sliderContainer.classList.add('hidden');
+      };
+      
+      volumeBtn.addEventListener('mouseleave', (e) => {
+        // Check if mouse is moving to the slider
+        const rect = sliderContainer.getBoundingClientRect();
+        if (!(e.clientX >= rect.left && e.clientX <= rect.right && 
+              e.clientY >= rect.top && e.clientY <= rect.bottom)) {
+          hideSlider();
+        }
+      });
+      
+      sliderContainer.addEventListener('mouseleave', hideSlider);
+    });
+  }
+
+  // Initialize videos with 50% volume
+  shortBlocks.forEach(block => {
+    const videoId = block.getAttribute('data-id');
+    const video = document.getElementById(`video-${videoId}`);
+    const progressBar = document.getElementById(`progress-${videoId}`);
+    
+    // Set initial volume to 50%
+    video.volume = 0.2;
+    updateVolumeIcon(`video-${videoId}`, 0.5);
+    
+    // Update progress bar
+    video.addEventListener('timeupdate', () => {
+      const progress = (video.currentTime / video.duration) * 100;
+      progressBar.style.width = `${progress}%`;
+    });
+    
+    // Make the entire video clickable for play/pause
+    block.addEventListener('click', (e) => {
+      // Don't trigger if clicking on the volume controls
+      if (e.target.closest('button') || e.target.closest('input')) return;
+      
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    });
+  });
+
+  // Set up volume controls after DOM is fully loaded
+  document.addEventListener('DOMContentLoaded', setupVolumeControls);
+
+  function scrollToIndex(index) {
+    if (index >= 0 && index < shortBlocks.length) {
+      isScrolling = true;
+      shortBlocks[index].scrollIntoView({ behavior: 'smooth' });
+      currentIndex = index;
+      setTimeout(() => isScrolling = false, 500);
+    }
+  }
+
+  // Wheel scroll
+  window.addEventListener('wheel', (e) => {
+    if (isScrolling) return;
+    if (e.deltaY > 0 && currentIndex < shortBlocks.length - 1) {
+      scrollToIndex(currentIndex + 1);
+    } else if (e.deltaY < 0 && currentIndex > 0) {
+      scrollToIndex(currentIndex - 1);
+    }
+  }, { passive: true });
+
+  // Touch scroll
+  let touchStartY = 0;
+  window.addEventListener('touchstart', (e) => {
+    touchStartY = e.changedTouches[0].clientY;
+  });
+  window.addEventListener('touchend', (e) => {
+    const touchEndY = e.changedTouches[0].clientY;
+    if (isScrolling) return;
+    if (touchStartY - touchEndY > 50 && currentIndex < shortBlocks.length - 1) {
+      scrollToIndex(currentIndex + 1);
+    } else if (touchEndY - touchStartY > 50 && currentIndex > 0) {
+      scrollToIndex(currentIndex - 1);
+    }
+  });
+
+  // Auto play/pause on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const video = entry.target.querySelector('video');
+      if (entry.isIntersecting) {
+        video.play().catch(e => console.error('Error playing video:', e));
+        const urlId = entry.target.getAttribute('data-id');
+        history.replaceState(null, '', '/shorts/' + urlId);
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: 0.6 });
+
+  shortBlocks.forEach(block => observer.observe(block));
+})();
+</script>
+{% endblock %}

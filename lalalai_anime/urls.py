@@ -23,5 +23,6 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('', include('core.urls')),
     path('anime/', include('anime.urls')),
+    path('shorts/', include('shorts.urls'))
 ]
 
