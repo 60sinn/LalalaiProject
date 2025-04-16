@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'cloudinary',
     'cloudinary_storage',
+    'widget_tweaks',
 
     #наши приложения
     'core',
@@ -167,3 +168,6 @@ CSRF_TRUSTED_ORIGINS = [
     "https://localhost:8000",
     "https://127.0.0.1:8000",
 ]
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024  # 1 GB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024  # 1 GB

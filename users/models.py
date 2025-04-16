@@ -16,7 +16,17 @@ class CustomUser(AbstractUser):
         default=Roles.USER
     )
 
+    bio = models.TextField(
+        verbose_name='Описание профиля',
+        max_length=500,
+        blank=True,
+        help_text='Расскажи о себе или напиши что-то крутое 🌟'
+    )
+
     avatar = CloudinaryField('avatar', blank=True, null=True, validators=[validate_avatar_file_size, validate_avatar_file_extension])
+
+    last_username_change = models.DateTimeField(null=True, blank=True)
+    last_email_change = models.DateTimeField(null=True, blank=True)
 
     def is_moderator(self):
         return self.role == self.Roles.MODERATOR
