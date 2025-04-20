@@ -8,10 +8,7 @@
 
     {% if opening %}
       <h2 class="text-xl font-semibold">{{ opening.title }}</h2>
-      <video controls class="mx-auto rounded-xl shadow-lg w-full max-w-3xl">
-        <source src="{{ opening.video.url }}" type="video/mp4">
-        Ваш браузер не поддерживает видео.
-      </video>
+      {% include 'components/video_player.html' with video_src=opening.video.url %}
     {% else %}
       <p class="text-gray-600">Опенинг ещё не добавлен.</p>
     {% endif %}

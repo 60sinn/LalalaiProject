@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.text import slugify
 from cloudinary.models import CloudinaryField
+import random
+import string
 
 #жанр
 class Genre(models.Model):
@@ -42,7 +44,7 @@ class Season(models.Model):
     title = models.CharField(max_length=200)
     season_number = models.PositiveIntegerField()  # Номер сезона (1, 2, 3 и т.д.)
     release_date = models.DateField(null=True, blank=True)
-    url_title = models.SlugField(unique=True, blank=True)
+    url_title = models.SlugField(blank=True)
     poster = CloudinaryField('image', blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -54,22 +56,32 @@ class Season(models.Model):
         return f"{self.title} ({self.anime.title} - Season {self.season_number})"
 
 #эпизод
+def generate_random_slug(length=12):
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+
+from django.db import models
+
 class Episode(models.Model):
     season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='episodes')
-    episode_number = models.PositiveIntegerField()  # Номер эпизода в сезоне (1, 2, 3 и т.д.)
+    episode_number = models.PositiveIntegerField()
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     release_date = models.DateField(null=True, blank=True)
     url_title = models.SlugField(unique=True, blank=True)
-    video = CloudinaryField('video', blank=True, null=True)
+    video = models.URLField("Video URL", blank=True, null=True)  # ⬅️ изменено
 
     def save(self, *args, **kwargs):
         if not self.url_title:
-            self.url_title = slugify(self.title)
+            while True:
+                random_slug = generate_random_slug()
+                if not Episode.objects.filter(url_title=random_slug).exists():
+                    self.url_title = random_slug
+                    break
         super().save(*args, **kwargs)
 
     def __str__(self):
         return f"Episode {self.episode_number} - {self.title}"
+
 
 class Opening(models.Model):
     anime = models.ForeignKey('Anime', on_delete=models.CASCADE, related_name='openings')
@@ -79,7 +91,11 @@ class Opening(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.url_title:
-            self.url_title = slugify(self.title)
+            while True:
+                random_slug = generate_random_slug()
+                if not Opening.objects.filter(url_title=random_slug).exists():
+                    self.url_title = random_slug
+                    break
         super().save(*args, **kwargs)
 
     def __str__(self):
