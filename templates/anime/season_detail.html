@@ -85,4 +85,15 @@
     </div>
   </div>
 </div>
+
+<section class="mt-16" id="season-comments-section">
+  <h2 class="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
+    Комментарии
+  </h2>
+
+  {% include 'comments/comments_block.html' with target_type="season" object_slug=season.url_title %}
+</section>
+
+{% load static %}
+<script src="{% static 'comments/comments.js' %}"></script>
 {% endblock %}
