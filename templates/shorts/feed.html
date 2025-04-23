@@ -97,11 +97,69 @@
             {{ short.description }}
           </div>
         </div>
+
+        <div 
+          class="absolute right-4 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 text-white"
+        >
+          <button
+            class="like-btn bg-black/60 hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-600 p-3 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-125 backdrop-filter backdrop-blur-sm shadow-lg hover:shadow-pink-500/50 relative overflow-hidden group"
+            data-url-id="{{ short.url_id }}"
+            onclick="toggleLike(this); animateLikeClick(this);"
+          >
+            <span class="relative z-10">
+              {% if user in short.likes.all %}
+              ❤️
+              {% else %}
+              🤍
+              {% endif %}
+            </span>
+            <span class="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></span>
+            <span class="absolute inset-0 bg-pink-500/20 rounded-full opacity-0 group-hover:animate-ping"></span>
+            <span class="heart-burst absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none">
+              <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-pink-500">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+              </svg>
+            </span>
+          </button>
+          <span id="like-count-{{ short.url_id }}" class="text-sm font-bold">
+            {{ short.likes.count }}
+          </span>
+        </div>
       </div>
     </div>
     {% endfor %}
   </div>
 </section>
+
+<style>
+  @keyframes heartBurst {
+    0% { opacity: 1; transform: scale(0); }
+    50% { opacity: 0.8; transform: scale(1.5); }
+    100% { opacity: 0; transform: scale(2); }
+  }
+  
+  @keyframes heartPulse {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.3); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.2); }
+    60% { transform: scale(1); }
+  }
+  
+  @keyframes colorFlash {
+    0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+  }
+  
+  .animate-heart-burst {
+    animation: heartBurst 0.8s ease-out forwards;
+  }
+  
+  .animate-button-pulse {
+    animation: heartPulse 0.6s ease, colorFlash 0.8s ease-out;
+  }
+</style>
 
 <script>
 (function() {
@@ -263,5 +321,69 @@
 
   shortBlocks.forEach(block => observer.observe(block));
 })();
+
+  window.toggleLike = function(button) {
+    const urlId = button.dataset.urlId;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(`/shorts/${urlId}/like/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    })
+    .then(response => response.json())
+    .then(data => {
+      const countSpan = document.getElementById(`like-count-${urlId}`);
+      countSpan.textContent = data.likes_count;
+
+      // Update icon style
+      button.innerHTML = data.liked ? '❤️' : '🤍';
+    })
+    .catch(err => {
+      console.error('Ошибка лайка:', err);
+    });
+  };
+  function animateLikeClick(button) {
+    // Remove any existing animation classes
+    button.classList.remove('animate-button-pulse');
+    
+    // Get the heart burst element
+    const heartBurst = button.querySelector('.heart-burst');
+    const heartSvg = heartBurst.querySelector('svg');
+    heartSvg.classList.remove('animate-heart-burst');
+    
+    // Force a DOM reflow to ensure animations can be triggered again
+    void button.offsetWidth;
+    void heartSvg.offsetWidth;
+    
+    // Add animation classes
+    button.classList.add('animate-button-pulse');
+    heartBurst.style.opacity = '1';
+    heartSvg.classList.add('animate-heart-burst');
+    
+    // Reset heart burst after animation completes
+    setTimeout(() => {
+      heartBurst.style.opacity = '0';
+      // Don't remove the classes here to avoid interrupting animations
+    }, 800);
+    
+    // Clean up all animations after they complete
+    setTimeout(() => {
+      button.classList.remove('animate-button-pulse');
+      heartSvg.classList.remove('animate-heart-burst');
+    }, 1000);
+  }
+  
+  // Modify the existing toggleLike function to ensure animations work with the API response
+  const originalToggleLike = window.toggleLike;
+  window.toggleLike = function(button) {
+    // Call the original function
+    originalToggleLike(button);
+    
+    // No need to call animateLikeClick here as it's already in the onclick handler
+  };
 </script>
 {% endblock %}

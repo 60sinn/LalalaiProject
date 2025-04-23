@@ -5,5 +5,6 @@ app_name = 'shorts'
  
 urlpatterns = [
     path('', views.shorts_feed, name='feed'),
+    path('<str:url_id>/like/', views.toggle_like, name='like'),
     path('<str:url_id>/', views.short_detail, name='detail'),
 ]

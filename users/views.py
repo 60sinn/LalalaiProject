@@ -83,8 +83,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 class PublicProfileView(TemplateView):
     template_name = 'users/public_profile.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def dispatch(self, request, *args, **kwargs):
         username = self.kwargs.get('username')
 
         try:
@@ -92,9 +91,14 @@ class PublicProfileView(TemplateView):
         except User.DoesNotExist:
             raise Http404("Такой пользователь не найден")
 
-        if self.request.user.is_authenticated and self.request.user == profile_user:
+        if request.user.is_authenticated and request.user == profile_user:
             return redirect('profile')
 
-        context['profile_user'] = profile_user
-        context['is_self'] = self.request.user == profile_user
+        self.profile_user = profile_user
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile_user'] = self.profile_user
+        context['is_self'] = self.request.user == self.profile_user
         return context
