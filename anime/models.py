@@ -87,7 +87,7 @@ class Opening(models.Model):
     anime = models.ForeignKey('Anime', on_delete=models.CASCADE, related_name='openings')
     title = models.CharField(max_length=255)
     url_title = models.SlugField(unique=True, blank=True)
-    video = CloudinaryField('video', resource_type='video', blank=True, null=True)
+    video = models.URLField("Video URL", blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.url_title:
@@ -100,3 +100,8 @@ class Opening(models.Model):
 
     def __str__(self):
         return f"{self.anime.title} — {self.title}"
+
+    def resolved_video_url(self):
+        if self.video:
+            return self.video.url if hasattr(self.video, 'url') else self.video
+        return self.external_video_url

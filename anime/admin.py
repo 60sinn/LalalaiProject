@@ -98,8 +98,34 @@ class EpisodeAdmin(admin.ModelAdmin):
 
 
 
+class OpeningAdminForm(forms.ModelForm):
+    video_file = forms.FileField(required=False, label="Загрузить видео")
+
+    class Meta:
+        model = Opening
+        fields = [
+            'anime',
+            'title',
+            'url_title',
+            'video',           # это будет скрыто (read-only или editable=False)
+            'video_file',
+        ]
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        file = self.cleaned_data.get('video_file')
+        if file:
+            result = upload_large(file, resource_type='video')
+            instance.video = result['secure_url']
+
+        if commit:
+            instance.save()
+        return instance
+
 @admin.register(Opening)
 class OpeningAdmin(admin.ModelAdmin):
+    form = OpeningAdminForm
     list_display = ('title', 'anime', 'video_preview', 'video_url')
     list_filter = ('anime',)
     search_fields = ('title',)
@@ -110,13 +136,12 @@ class OpeningAdmin(admin.ModelAdmin):
             return format_html(
                 '<video width="250" controls>'
                 '<source src="{}" type="video/mp4">'
-                'Your browser does not support the video tag.'
+                'Ваш браузер не поддерживает видео.'
                 '</video>',
-                obj.video.url
+                obj.video
             )
         return "—"
-    video_preview.short_description = "Превью"
 
     def video_url(self, obj):
-        return obj.video.url if obj.video else "—"
-    video_url.short_description = "Ссылка на видео"
+        return obj.video if obj.video else "—"
+

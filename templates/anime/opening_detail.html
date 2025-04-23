@@ -8,7 +8,7 @@
 
     {% if opening %}
       <h2 class="text-xl font-semibold">{{ opening.title }}</h2>
-      {% include 'components/video_player.html' with video_src=opening.video.url %}
+      {% include 'components/video_player.html' with video_src=opening.video %}
     {% else %}
       <p class="text-gray-600">Опенинг ещё не добавлен.</p>
     {% endif %}
