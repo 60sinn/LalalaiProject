@@ -1,0 +1,506 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Shorts container with centered content -->
+<section class="flex justify-center items-center min-h-screen">
+  <div id="shortsWrapper" class="max-w-[480px] h-screen overflow-hidden">
+    {% for short in shorts %}
+    <div 
+      class="short-video h-screen w-full flex items-center justify-center"
+      data-id="{{ short.url_id }}"
+    >
+      <div class="relative h-full w-full rounded-xl overflow-hidden">
+        <!-- Video element without controls attribute -->
+        <video 
+          id="video-{{ short.url_id }}"
+          class="h-full w-full object-cover"
+          src="{{ short.video.url }}"
+          autoplay
+          loop
+          playsinline
+          preload="auto"
+        ></video>
+
+        <!-- Volume button - more visible and positioned in the corner of the SHORT -->
+        <button 
+          id="volume-btn-{{ short.url_id }}"
+          class="absolute top-4 right-4 z-30 bg-black/60 hover:bg-black/80 p-3 rounded-full transition-all duration-200"
+          onclick="toggleMute('video-{{ short.url_id }}'); event.stopPropagation();"
+        >
+          <!-- Using the exact icon style the user provided -->
+          <svg id="volume-icon-{{ short.url_id }}" width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <path d="M3,9H7L12,4V20L7,15H3V9Z" />
+            <path d="M16.5,12C16.5,10.23 15.48,8.71 14,7.97V16.02C15.48,15.29 16.5,13.77 16.5,12Z" />
+            <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23Z" />
+          </svg>
+        </button>
+
+        <!-- Volume slider (appears on hover) -->
+        <div 
+          id="volume-slider-container-{{ short.url_id }}"
+          class="absolute top-4 right-16 z-30 hidden"
+        >
+          <div class="bg-black/60 rounded-full px-3 py-2">
+            <input 
+              type="range" 
+              id="volume-slider-{{ short.url_id }}" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value="0.5"
+              class="w-24 accent-pink-500"
+              oninput="changeVolume('video-{{ short.url_id }}', this.value)"
+              onclick="event.stopPropagation()"
+            >
+          </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-gray-700/50 z-20">
+          <div 
+            id="progress-{{ short.url_id }}" 
+            class="h-full w-0 bg-gradient-to-r from-pink-500 to-purple-500"
+          ></div>
+        </div>
+
+        <!-- Video info overlay -->
+        <div class="absolute bottom-0 left-0 w-full p-4 
+                    bg-gradient-to-t from-black/90 to-transparent 
+                    text-gray-200 drop-shadow-md z-10">
+          <div class="flex items-center gap-2 mb-3">
+            {% if short.author.avatar.url %}
+              <a href="{% url 'public_profile' short.author.username %}">
+                <img 
+                  src="{{ short.author.avatar.url }}"
+                  alt="Avatar {{ short.author.username }}"
+                  class="w-8 h-8 rounded-full object-cover border border-white shadow-sm hover:ring-2 hover:ring-pink-300 transition"
+                />
+              </a>
+            {% else %}
+              <a href="{% url 'public_profile' short.author.username %}">
+                <img 
+                  src="https://ui-avatars.com/api/?name={{ short.author.username }}&background=111&color=fff&size=64"
+                  alt="Avatar placeholder"
+                  class="w-8 h-8 rounded-full border border-white shadow-sm hover:ring-2 hover:ring-pink-300 transition"
+              />
+              </a>
+            {% endif %}
+            <span class="text-sm font-semibold">
+              {{ short.author.username }}
+            </span>
+          </div>
+          <div class="font-bold text-base mb-1 leading-tight">
+            {{ short.title }}
+          </div>
+          <div class="text-sm leading-tight">
+            {{ short.description }}
+          </div>
+        </div>
+
+        <div 
+          class="absolute right-4 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center gap-1 text-white"
+        >
+          <button
+            class="like-btn bg-black/60 hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-600 p-3 rounded-full transition-all duration-300 transform hover:scale-110 active:scale-125 backdrop-filter backdrop-blur-sm shadow-lg hover:shadow-pink-500/50 relative overflow-hidden group"
+            data-url-id="{{ short.url_id }}"
+            onclick="toggleLike(this); animateLikeClick(this);"
+          >
+            <span class="relative z-10">
+              {% if user in short.likes.all %}
+              ❤️
+              {% else %}
+              🤍
+              {% endif %}
+            </span>
+            <span class="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full"></span>
+            <span class="absolute inset-0 bg-pink-500/20 rounded-full opacity-0 group-hover:animate-ping"></span>
+            <span class="heart-burst absolute inset-0 flex items-center justify-center opacity-0 pointer-events-none">
+              <svg viewBox="0 0 24 24" fill="none" class="w-full h-full text-pink-500">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+              </svg>
+            </span>
+          </button>
+          <span id="like-count-{{ short.url_id }}" class="text-sm font-bold">
+            {{ short.likes.count }}
+          </span>
+          <button 
+            class="bg-black/60 hover:bg-purple-600 p-3 rounded-full transition-all duration-200"
+            onclick="openCommentsModal('{{ short.url_id }}')"
+          >
+            💬
+          </button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<style>
+  @keyframes heartBurst {
+    0% { opacity: 1; transform: scale(0); }
+    50% { opacity: 0.8; transform: scale(1.5); }
+    100% { opacity: 0; transform: scale(2); }
+  }
+  
+  @keyframes heartPulse {
+    0% { transform: scale(1); }
+    15% { transform: scale(1.3); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.2); }
+    60% { transform: scale(1); }
+  }
+  
+  @keyframes colorFlash {
+    0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(236, 72, 153, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
+  }
+  
+  .animate-heart-burst {
+    animation: heartBurst 0.8s ease-out forwards;
+  }
+  
+  .animate-button-pulse {
+    animation: heartPulse 0.6s ease, colorFlash 0.8s ease-out;
+  }
+  
+  /* Prevent scrolling when modal is open */
+  body.modal-open {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+(function() {
+  const shortBlocks = document.querySelectorAll('.short-video');
+  let currentIndex = 0;
+  let isScrolling = false;
+
+  // Function to toggle mute/unmute
+  window.toggleMute = function(videoId) {
+    const video = document.getElementById(videoId);
+    video.muted = !video.muted;
+    
+    // Update icon based on mute state
+    updateVolumeIcon(videoId, video.muted ? 0 : video.volume);
+  };
+
+  // Function to update volume icon based on state
+  function updateVolumeIcon(videoId, volumeLevel) {
+    const iconId = videoId.replace('video-', 'volume-icon-');
+    const icon = document.getElementById(iconId);
+    
+    if (volumeLevel === 0) {
+      // Muted icon (speaker with X)
+      icon.innerHTML = `
+        <path d="M3,9H7L12,4V20L7,15H3V9Z" />
+        <path d="M14,9.8L17.2,13L14,16.2V9.8Z" />
+        <path d="M18.6,16.6L15.4,13.4L18.6,10.2L20,11.6L16.8,14.8L20,18L18.6,16.6Z" />
+        <path d="M18.6,10.2L15.4,13.4L18.6,16.6L20,18L16.8,14.8L20,11.6L18.6,10.2Z" />
+      `;
+    } else {
+      // Unmuted icon (speaker with waves)
+      icon.innerHTML = `
+        <path d="M3,9H7L12,4V20L7,15H3V9Z" />
+        <path d="M16.5,12C16.5,10.23 15.48,8.71 14,7.97V16.02C15.48,15.29 16.5,13.77 16.5,12Z" />
+        <path d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23Z" />
+      `;
+    }
+  }
+
+  // Function to change volume
+  window.changeVolume = function(videoId, value) {
+    const video = document.getElementById(videoId);
+    video.volume = value;
+    video.muted = (value === 0);
+    
+    // Update icon based on volume level
+    updateVolumeIcon(videoId, value);
+  };
+
+  // Toggle volume slider visibility
+  function setupVolumeControls() {
+    shortBlocks.forEach(block => {
+      const videoId = block.getAttribute('data-id');
+      const volumeBtn = document.getElementById(`volume-btn-${videoId}`);
+      const sliderContainer = document.getElementById(`volume-slider-container-${videoId}`);
+      
+      // Show slider on hover
+      volumeBtn.addEventListener('mouseenter', () => {
+        sliderContainer.classList.remove('hidden');
+      });
+      
+      // Hide slider when mouse leaves the button and slider area
+      const hideSlider = () => {
+        sliderContainer.classList.add('hidden');
+      };
+      
+      volumeBtn.addEventListener('mouseleave', (e) => {
+        // Check if mouse is moving to the slider
+        const rect = sliderContainer.getBoundingClientRect();
+        if (!(e.clientX >= rect.left && e.clientX <= rect.right && 
+              e.clientY >= rect.top && e.clientY >= rect.bottom)) {
+          hideSlider();
+        }
+      });
+      
+      sliderContainer.addEventListener('mouseleave', hideSlider);
+    });
+  }
+
+  // Initialize videos with 50% volume
+  shortBlocks.forEach(block => {
+    const videoId = block.getAttribute('data-id');
+    const video = document.getElementById(`video-${videoId}`);
+    const progressBar = document.getElementById(`progress-${videoId}`);
+    
+    // Set initial volume to 50%
+    video.volume = 0.2;
+    updateVolumeIcon(`video-${videoId}`, 0.5);
+    
+    // Update progress bar
+    video.addEventListener('timeupdate', () => {
+      const progress = (video.currentTime / video.duration) * 100;
+      progressBar.style.width = `${progress}%`;
+    });
+    
+    // Make the entire video clickable for play/pause
+    block.addEventListener('click', (e) => {
+      // Don't trigger if clicking on the volume controls
+      if (e.target.closest('button') || e.target.closest('input')) return;
+      
+      if (video.paused) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    });
+  });
+
+  // Set up volume controls after DOM is fully loaded
+  document.addEventListener('DOMContentLoaded', setupVolumeControls);
+
+  function scrollToIndex(index) {
+    if (index >= 0 && index < shortBlocks.length) {
+      isScrolling = true;
+      shortBlocks[index].scrollIntoView({ behavior: 'smooth' });
+      currentIndex = index;
+      setTimeout(() => isScrolling = false, 500);
+    }
+  }
+
+  // Wheel scroll - only if modal is not open
+  window.addEventListener('wheel', (e) => {
+    if (isScrolling || document.body.classList.contains('modal-open')) return;
+    if (e.deltaY > 0 && currentIndex < shortBlocks.length - 1) {
+      scrollToIndex(currentIndex + 1);
+    } else if (e.deltaY < 0 && currentIndex > 0) {
+      scrollToIndex(currentIndex - 1);
+    }
+  }, { passive: true });
+
+  // Touch scroll - only if modal is not open
+  let touchStartY = 0;
+  window.addEventListener('touchstart', (e) => {
+    if (document.body.classList.contains('modal-open')) return;
+    touchStartY = e.changedTouches[0].clientY;
+  });
+  window.addEventListener('touchend', (e) => {
+    if (document.body.classList.contains('modal-open')) return;
+    const touchEndY = e.changedTouches[0].clientY;
+    if (isScrolling) return;
+    if (touchStartY - touchEndY > 50 && currentIndex < shortBlocks.length - 1) {
+      scrollToIndex(currentIndex + 1);
+    } else if (touchEndY - touchStartY > 50 && currentIndex > 0) {
+      scrollToIndex(currentIndex - 1);
+    }
+  });
+
+  // Auto play/pause on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const video = entry.target.querySelector('video');
+      if (entry.isIntersecting) {
+        video.play().catch(e => console.error('Error playing video:', e));
+        const urlId = entry.target.getAttribute('data-id');
+        history.replaceState(null, '', '/shorts/' + urlId);
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: 0.6 });
+
+  shortBlocks.forEach(block => observer.observe(block));
+})();
+
+  window.toggleLike = function(button) {
+    const urlId = button.dataset.urlId;
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(`/shorts/${urlId}/like/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    })
+    .then(response => response.json())
+    .then(data => {
+      const countSpan = document.getElementById(`like-count-${urlId}`);
+      countSpan.textContent = data.likes_count;
+
+      // Update icon style
+      button.innerHTML = data.liked ? '❤️' : '🤍';
+    })
+    .catch(err => {
+      console.error('Ошибка лайка:', err);
+    });
+  };
+  function animateLikeClick(button) {
+    // Remove any existing animation classes
+    button.classList.remove('animate-button-pulse');
+    
+    // Get the heart burst element
+    const heartBurst = button.querySelector('.heart-burst');
+    const heartSvg = heartBurst.querySelector('svg');
+    heartSvg.classList.remove('animate-heart-burst');
+    
+    // Force a DOM reflow to ensure animations can be triggered again
+    void button.offsetWidth;
+    void heartSvg.offsetWidth;
+    
+    // Add animation classes
+    button.classList.add('animate-button-pulse');
+    heartBurst.style.opacity = '1';
+    heartSvg.classList.add('animate-heart-burst');
+    
+    // Reset heart burst after animation completes
+    setTimeout(() => {
+      heartBurst.style.opacity = '0';
+      // Don't remove the classes here to avoid interrupting animations
+    }, 800);
+    
+    // Clean up all animations after they complete
+    setTimeout(() => {
+      button.classList.remove('animate-button-pulse');
+      heartSvg.classList.remove('animate-heart-burst');
+    }, 1000);
+  }
+  
+  // Modify the existing toggleLike function to ensure animations work with the API response
+  const originalToggleLike = window.toggleLike;
+  window.toggleLike = function(button) {
+    // Call the original function
+    originalToggleLike(button);
+    
+    // No need to call animateLikeClick here as it's already in the onclick handler
+  };
+
+let currentShortId = null;
+
+// Improved scroll locking function
+function toggleBodyScroll(disable) {
+  const body = document.body;
+  const shortsWrapper = document.getElementById('shortsWrapper');
+  
+  if (disable) {
+    // Add class to prevent scrolling
+    body.classList.add('modal-open');
+    
+    // Store current scroll position
+    body.dataset.scrollY = window.scrollY;
+    
+    // Prevent shorts from scrolling when modal is open
+    shortsWrapper.style.pointerEvents = 'none';
+  } else {
+    // Remove class to allow scrolling
+    body.classList.remove('modal-open');
+    
+    // Restore scroll position
+    const scrollY = body.dataset.scrollY || '0';
+    window.scrollTo(0, parseInt(scrollY));
+    
+    // Re-enable shorts scrolling
+    shortsWrapper.style.pointerEvents = '';
+  }
+}
+
+function openCommentsModal(shortId) {
+  currentShortId = shortId;
+  const modal = document.getElementById('commentsModal');
+  
+  // Show modal
+  modal.classList.remove('hidden');
+  
+  // Disable scrolling on body
+  toggleBodyScroll(true);
+
+  fetch(`/comments/shorts/${shortId}/comments/`)
+    .then(res => res.json())
+    .then(data => {
+      const list = document.getElementById('commentsList');
+      list.innerHTML = '';
+      data.comments.forEach(c => {
+        const item = document.createElement('div');
+        const avatar = c.avatar ? c.avatar : `https://ui-avatars.com/api/?name=${c.author}&background=ecd5fa&color=8e44ad`;
+
+        item.innerHTML = `
+          <div class="flex items-start gap-3">
+            <a href="/profile/${c.author}/">
+              <img src="${avatar}" alt="${c.author}" class="w-8 h-8 rounded-full object-cover border hover:ring-2 hover:ring-pink-400 transition" />
+            </a>
+            <div>
+              <a href="/profile/${c.author}/" class="font-semibold hover:underline text-white">${c.author}</a>
+              <div class="text-gray-400 text-xs">${c.created_at}</div>
+              <div class="mt-1 text-white">${c.text}</div>
+            </div>
+          </div>
+        `;
+
+        list.appendChild(item);
+      });
+    });
+}
+
+function closeCommentsModal() {
+  // Use the animation function if available
+  if (typeof window.closeCommentsModalWithAnimation === 'function') {
+    window.closeCommentsModalWithAnimation();
+  } else {
+    // Fallback if the animation script isn't loaded
+    const modal = document.getElementById('commentsModal');
+    modal.classList.add('hidden');
+    toggleBodyScroll(false);
+  }
+}
+
+function submitComment(e) {
+  e.preventDefault();
+  const textInput = e.target.text;
+  const formData = new FormData();
+  formData.append('text', textInput.value);
+
+  fetch(`/comments/shorts/${currentShortId}/comments/post/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+    },
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      textInput.value = '';
+      openCommentsModal(currentShortId); // обновляем список
+    }
+  });
+}
+</script>
+{% include 'comments/shorts_modal.html' %}
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Опенинг — {{ anime.title }}{% endblock %}
+
+{% block content %}
+  <div class="text-center space-y-6">
+    <h1 class="text-3xl font-bold text-purple-700">{{ anime.title }} — Опенинг</h1>
+
+    {% if opening %}
+      <h2 class="text-xl font-semibold">{{ opening.title }}</h2>
+      {% include 'components/video_player.html' with video_src=opening.video %}
+    {% else %}
+      <p class="text-gray-600">Опенинг ещё не добавлен.</p>
+    {% endif %}
+  </div>
+{% endblock %}

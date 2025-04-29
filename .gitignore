@@ -1,0 +1,32 @@
+# Виртуальное окружение
+venv/
+
+# Файлы Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# SQLite
+*.sqlite3
+
+# IDE-штуки
+.vscode/
+.idea/
+
+# Файлы окружения
+.env
+
+# macOS/Windows мусор
+.DS_Store
+Thumbs.db
+
+# Node.js
+node_modules/
+package-lock.json
+
+# Tailwind output
+static/css/output.css
+
+#staticfiles
+staticfiles/

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Опенинги — {{ anime.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen py-10 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
+  <div class="max-w-4xl mx-auto space-y-10">
+    <h1 class="text-3xl font-bold text-purple-800 text-center">{{ anime.title }} — Опенинги</h1>
+
+    {% if openings %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {% for opening in openings %}
+          <a href="{% url 'anime_opening_detail' anime.url_title opening.url_title %}"
+             class="block bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition">
+            <div class="mb-3 text-lg font-semibold text-purple-700">{{ opening.title }}</div>
+            <div class="rounded overflow-hidden shadow">
+              <video class="w-full h-40 object-cover" muted>
+                <source src="{{ opening.video }}" type="video/mp4">
+              </video>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-center text-gray-600">Опенинги пока не добавлены.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

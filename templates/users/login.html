@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load form_filters %}
+{% block title %}Вход — Lalalai{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg transform transition duration-200 hover:shadow-xl border border-pink-100">
+    <div class="text-center">
+      <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 mb-6">Вход в аккаунт</h2>
+    </div>
+    
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      
+      <div class="space-y-2">
+        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.username.label }}</label>
+        {{ form.username|add_class:"w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition duration-200" }}
+        {% if form.username.errors %}
+          <p class="text-pink-600 text-xs mt-1">{{ form.username.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+      
+      <div class="space-y-2">
+        <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ form.password.label }}</label>
+        {{ form.password|add_class:"w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:border-transparent transition duration-200" }}
+        {% if form.password.errors %}
+          <p class="text-pink-600 text-xs mt-1">{{ form.password.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+      
+      <div>
+        <button type="submit" class="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-3 rounded-xl font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-400">
+          Войти
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-6 text-center">
+      <p class="text-sm text-gray-600">
+        Ещё нет аккаунта? <a href="{% url 'register' %}" class="font-medium text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 hover:underline transition duration-200">Зарегистрируйтесь</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

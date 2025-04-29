@@ -25,18 +25,36 @@ SECRET_KEY = "django-insecure-(0+=029gbc)%-)98zjclekxf9krx=-o_^lv$%62u0@)%&=4x%u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".github.dev",
+]
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'cloudinary',
+    'cloudinary_storage',
+    'widget_tweaks',
+
+    #наши приложения
+    'core',
+    'users',
+    'anime',
+    'shorts',
+    'comments',
+    'favorites',
+    'likes',
+    'ratings',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +72,7 @@ ROOT_URLCONF = "lalalai_anime.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / 'templates'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -121,3 +139,71 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dkycpes1u',
+    'API_KEY': '358345675739425',
+    'API_SECRET': 'vWs8u4qloYMGZEE-bLu0gMwPskU',
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+import cloudinary
+
+cloudinary.config( 
+  cloud_name = 'dkycpes1u', 
+  api_key = '358345675739425', 
+  api_secret = 'vWs8u4qloYMGZEE-bLu0gMwPskU'
+)
+
+MAX_AVATAR_SIZE_KB = 128
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.github.dev",
+    "https://localhost:8000",
+    "https://127.0.0.1:8000",
+]
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024  # 1 GB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024  # 1 GB
+
+CLOUDINARY = {
+    'chunk_size': 100 * 1024 * 1024,  # 100MB
+}
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Lalalai Admin",
+    "site_header": "Lalalai Панель",
+    "site_brand": "Lalalai",
+    "site_logo": "icons/favicon-32x32.png",  # путь внутри static/
+    "site_icon": "icons/favicon-32x32.png",
+    "welcome_sign": "Добро пожаловать в панель модерации Lalalai!",
+    "copyright": "© 2025 Lalalai",
+    "user_avatar": "avatar",
+
+    "topmenu_links": [
+        {"name": "На сайт", "url": "/", "new_window": True},
+    ],
+
+    "show_sidebar": True,
+    "navigation_expanded": True,
+
+    "custom_css": "admin/css/lalalai_admin.css",
+
+    "order_with_respect_to": [
+        "anime",
+        "shorts",
+        "comments",
+        "users"
+    ],
+
+    "search_model": ["anime.Anime", "users.User"],
+}

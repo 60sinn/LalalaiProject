@@ -1,0 +1,49 @@
+<div id="{{ target_type }}-comments-container" 
+     data-target-type="{{ target_type }}" 
+     data-object-slug="{{ object_slug }}" 
+     class="space-y-6">
+</div>
+
+<div id="{{ target_type }}-comments-loader" class="text-center text-gray-500 py-4 hidden">
+  Загрузка...
+</div>
+
+<div class="text-center mt-4">
+  <div id="load-more-wrapper-{{ target_type }}">
+    <button id="load-more-comments-{{ target_type }}"
+            onclick="loadComments('{{ target_type }}')"
+            class="px-6 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition">
+      Показать ещё
+    </button>
+  </div>
+  <p id="no-more-comments-{{ target_type }}" class="text-gray-500 hidden mt-2">
+    Больше нет комментариев.
+  </p>
+</div>
+
+{% if user.is_authenticated %}
+  <form id="commentForm-{{ target_type }}" 
+        onsubmit="submitComment(event, '{{ target_type }}')" 
+        class="mt-8 space-y-4">
+    <label for="commentInput-{{ target_type }}" class="block font-semibold text-gray-700">
+      Оставить комментарий:
+    </label>
+    <div class="flex gap-2">
+      <input
+        id="commentInput-{{ target_type }}"
+        name="text"
+        type="text"
+        placeholder="Напиши что-нибудь..."
+        class="flex-grow border border-gray-300 rounded px-4 py-2"
+        required
+      />
+      <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition">
+        Отправить
+      </button>
+    </div>
+  </form>
+{% else %}
+  <p class="text-gray-500 mt-8">
+    <a href="{% url 'login' %}" class="text-purple-600 hover:underline">Войдите</a>, чтобы оставить комментарий.
+  </p>
+{% endif %}
