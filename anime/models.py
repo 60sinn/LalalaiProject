@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from cloudinary.models import CloudinaryField
+from django.db.models import Avg
 import random
 import string
 
@@ -37,6 +38,11 @@ class Anime(models.Model):
 
     def __str__(self):
         return self.title
+    
+    @property
+    def average_rating(self):
+        avg = self.ratings.aggregate(Avg('score'))['score__avg']
+        return round(avg, 1) if avg else 0
 
 #сезон
 class Season(models.Model):
@@ -54,6 +60,11 @@ class Season(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.anime.title} - Season {self.season_number})"
+    
+    @property
+    def average_rating(self):
+        avg = self.ratings.aggregate(Avg('score'))['score__avg']
+        return round(avg, 1) if avg else 0
 
 #эпизод
 def generate_random_slug(length=12):

@@ -27,3 +27,6 @@ package-lock.json
 
 # Tailwind output
 static/css/output.css
+
+#staticfiles
+staticfiles/

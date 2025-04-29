@@ -26,5 +26,6 @@ urlpatterns = [
     path('shorts/', include('shorts.urls')),
     path('', include('users.urls')),
     path('comments/', include('comments.urls')),
+    path('ratings/', include('ratings.urls')),
 ]
 

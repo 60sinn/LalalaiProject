@@ -35,6 +35,7 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -145,6 +146,8 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': 'dkycpes1u',
     'API_KEY': '358345675739425',
@@ -174,4 +177,33 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 1024  # 1 GB
 
 CLOUDINARY = {
     'chunk_size': 100 * 1024 * 1024,  # 100MB
+}
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Lalalai Admin",
+    "site_header": "Lalalai Панель",
+    "site_brand": "Lalalai",
+    "site_logo": "icons/favicon-32x32.png",  # путь внутри static/
+    "site_icon": "icons/favicon-32x32.png",
+    "welcome_sign": "Добро пожаловать в панель модерации Lalalai!",
+    "copyright": "© 2025 Lalalai",
+    "user_avatar": "avatar",
+
+    "topmenu_links": [
+        {"name": "На сайт", "url": "/", "new_window": True},
+    ],
+
+    "show_sidebar": True,
+    "navigation_expanded": True,
+
+    "custom_css": "admin/css/lalalai_admin.css",
+
+    "order_with_respect_to": [
+        "anime",
+        "shorts",
+        "comments",
+        "users"
+    ],
+
+    "search_model": ["anime.Anime", "users.User"],
 }

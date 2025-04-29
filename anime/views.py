@@ -2,6 +2,7 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Anime, Season, Episode
 from django.http import JsonResponse
+from ratings.models import AnimeRating, SeasonRating
 
 def anime_list(request):
     animes = Anime.objects.all()
@@ -10,13 +11,35 @@ def anime_list(request):
 def anime_detail(request, anime_url_title):
     anime = get_object_or_404(Anime, url_title=anime_url_title)  # Извлекаем аниме по url_title
     seasons = anime.seasons.all()  # Получаем все сезоны для этого аниме
-    return render(request, 'anime/anime_detail.html', {'anime': anime, 'seasons': seasons})
+    user_rating = None
+
+    if request.user.is_authenticated:
+        rating = AnimeRating.objects.filter(anime=anime, user=request.user).first()
+        if rating:
+            user_rating = rating.score
+
+    return render(request, 'anime/anime_detail.html', {
+        'anime': anime,
+        'seasons': seasons,
+        'user_rating': user_rating,  # добавляем в контекст
+    })
 
 def season_detail(request, anime_url_title, season_url_title):
     anime = get_object_or_404(Anime, url_title=anime_url_title)
-    season = get_object_or_404(Season, anime=anime, url_title=season_url_title)  # Получаем сезон по season_url_title
-    episodes = season.episodes.all()  # Получаем все эпизоды сезона
-    return render(request, 'anime/season_detail.html', {'season': season, 'episodes': episodes})
+    season = get_object_or_404(Season, anime=anime, url_title=season_url_title)
+    episodes = season.episodes.all()
+
+    user_rating = None
+    if request.user.is_authenticated:
+        rating = SeasonRating.objects.filter(season=season, user=request.user).first()
+        if rating:
+            user_rating = rating.score
+
+    return render(request, 'anime/season_detail.html', {
+        'season': season,
+        'episodes': episodes,
+        'user_rating': user_rating,
+    })
 
 def episode_detail(request, anime_url_title, season_url_title, episode_url_title):
     anime = get_object_or_404(Anime, url_title=anime_url_title)

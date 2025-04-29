@@ -16,7 +16,7 @@ urlpatterns = [
     path('season/<slug:season_slug>/comments/', views.get_season_comments, name='get_season_comments'),
     path('season/<slug:season_slug>/comments/post/', views.post_season_comment, name='post_season_comment'),
 
-    # эпизоДИКИ)
+    # эпизоды)
     path('episode/<slug:episode_slug>/comments/', views.get_episode_comments, name='get_episode_comments'),
     path('episode/<slug:episode_slug>/comments/post/', views.post_episode_comment, name='post_episode_comment'),
 ]

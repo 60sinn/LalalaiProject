@@ -1,0 +1,32 @@
+:root {
+  --primary: #9333ea; /* purple-600 */
+  --secondary: #db2777; /* pink-600 */
+  --accent: #f472b6;
+  --bg: #faf5ff;
+}
+
+#jazzy-logo {
+  filter: drop-shadow(0 0 5px rgba(255, 0, 255, 0.4));
+}
+
+.navbar, .navbar-brand {
+  background: linear-gradient(to right, #9333ea, #db2777);
+}
+
+.sidebar {
+  background: linear-gradient(to bottom, #9333ea, #db2777);
+}
+
+.sidebar a:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary {
+  background-color: #9333ea;
+  border-color: #9333ea;
+}
+
+.btn-primary:hover {
+  background-color: #7e22ce;
+  border-color: #7e22ce;
+}
