@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen flex justify-center items-center bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50">
+  <div class="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 text-center">
+      Загрузить короткое видео
+    </h1>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <div id="preview" class="hidden mt-4">
+        <video id="video-preview" class="rounded-lg w-full h-auto" controls></video>
+      </div>
+
+      <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 px-6 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all">
+        Загрузить
+      </button>
+
+      <button type="reset" class="w-full mt-4 text-gray-600 hover:text-pink-500" onclick="resetForm()">Отменить</button>
+    </form>
+    <div id="fileErrorToast" class="fixed bottom-6 right-6 z-50 hidden bg-red-50 border-l-4 border-red-500 text-red-800 px-6 py-4 rounded-lg shadow-xl animate-toast max-w-md backdrop-blur-sm">
+      <div class="flex items-center gap-2 font-semibold mb-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span class="toast-message">Ошибка загрузки видео</span>
+      </div>
+    </div>   
+  </div>
+</div>
+
+<style>
+  @keyframes toast-slide {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .animate-toast {
+    animation: toast-slide 0.4s ease-out;
+  }
+  .fade-out {
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.querySelector('input[type="file"]');
+    const previewContainer = document.getElementById('preview');
+    const videoPreview = document.getElementById('video-preview');
+    const errorToast = document.getElementById('fileErrorToast');
+  
+    const maxFileSizeMB = 10; // Ограничение в МБ
+    const maxFileSizeBytes = maxFileSizeMB * 1024 * 1024;
+  
+    function resetForm() {
+      document.querySelector('form').reset();
+      previewContainer.classList.add('hidden');
+      videoPreview.src = '';
+    }
+  
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const allowedTypes = ['video/mp4', 'video/webm'];
+  
+        if (!allowedTypes.includes(file.type)) {
+          showErrorToast("Ошибка: можно загружать только видеофайлы в формате MP4 или WEBM.");
+          fileInput.value = "";
+          previewContainer.classList.add('hidden');
+          videoPreview.src = '';
+          return;
+        }
+  
+        if (file.size > maxFileSizeBytes) {
+          showErrorToast(`Ошибка: размер файла превышает ${maxFileSizeMB} МБ.`);
+          fileInput.value = "";
+          previewContainer.classList.add('hidden');
+          videoPreview.src = '';
+          return;
+        }
+  
+        previewContainer.classList.remove('hidden');
+        videoPreview.src = URL.createObjectURL(file);
+      } else {
+        previewContainer.classList.add('hidden');
+        videoPreview.src = '';
+      }
+    });
+  
+    function showErrorToast(message) {
+      errorToast.querySelector('.toast-message').textContent = message;
+      errorToast.classList.remove('hidden');
+      setTimeout(() => {
+        errorToast.classList.add('fade-out');
+        setTimeout(() => {
+          errorToast.classList.add('hidden');
+          errorToast.classList.remove('fade-out');
+        }, 400);
+      }, 5000);
+    }
+  
+    const resetButton = document.querySelector('button[type="reset"]');
+    if (resetButton) {
+      resetButton.addEventListener('click', resetForm);
+    }
+  });
+  </script>  
+
+{% endblock %}

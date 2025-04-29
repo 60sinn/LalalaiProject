@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="min-h-screen py-8 bg-gradient-to-br from-pink-50 via-purple-50 to-pink-50">
+  <div class="max-w-6xl mx-auto px-4">
+    <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-8 text-center">
+      Ваши Shorts
+    </h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      {% for short in shorts %}
+      <a href="{% url 'shorts:shorts_edit' short.url_id %}" class="group block bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300">
+        <div class="relative w-full h-48 overflow-hidden">
+          <video class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" muted loop preload="metadata">
+            <source src="{{ short.video.url }}#t=0.5" type="video/mp4">
+          </video>
+        </div>
+        <div class="p-4">
+          <h2 class="font-semibold text-lg text-purple-700 group-hover:text-pink-600 truncate">{{ short.title }}</h2>
+        </div>
+      </a>
+      {% empty %}
+      <div class="text-center col-span-full text-gray-500">
+        У вас пока нет загруженных шортов
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
